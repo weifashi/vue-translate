@@ -5,7 +5,7 @@
 
 ##### 1.下载
 ```
-npm install vue-auto-translation
+npm install vue-auto-translate
 ```
 
 ##### 2.安装完成后会在根目录生成配置文件 translate.json
@@ -13,7 +13,7 @@ npm install vue-auto-translation
 {
     "translateModel": 1,    // 翻译模式：1 (i18n)，2 (海豚格式)
     "filePath": "./",       // 指定需要查询翻译的目录
-    "targetPath": "",       // 指定翻译成功后输出的目录,为空时将自动查询，示列："src/i18n"
+    "targetPath": "",       // 指定翻译成功后输出的目录,为空时将自动查询，示列："/src/i18n" ，'/resources/assets/js/language/language.js‘
     "languageList": [       // 指定需要翻译的语言列表
         "CN",
         "EN",
@@ -22,7 +22,7 @@ npm install vue-auto-translation
     "channel": "google",    // 翻译渠道： youdao 有道, google 谷歌
     "appKey": "",           // 翻译渠道的应用key，google不需要
     "secretKey": "",        // 翻译渠道的应用密钥，google不需要
-    "excludes": [           // 排除翻译的目录
+    "excludes": [           // 排除不需要翻译的目录
         "node_modules",
         "vendor",
         "build",
