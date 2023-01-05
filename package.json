@@ -1,0 +1,29 @@
+{
+  "name": "vue-translate",
+  "version": "1.0.0",
+  "description": "#### Description {**When you're done, you can delete the content in this README and update the file with details for others getting started with your repository**}",
+  "main": "lib/server.js",
+  "scripts": {
+    "translate": "node node_modules/vue-translate/lib/server.js",
+    "install": "node ./install.js",
+    "test": "node ./server.js",
+    "test1": "node ./install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitee.com:weifashi/vue-translate.git"
+  },
+  "keywords": [
+    "vue",
+    "vue-i18n",
+    "translate"
+  ],
+  "author": "605403358@qq.com",
+  "license": "ISC",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "just-task": "^1.7.0",
+    "single-line-log": "^1.1.2",
+    "sync-request": "^6.1.0"
+  }
+}
