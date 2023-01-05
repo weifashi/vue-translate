@@ -15,16 +15,16 @@ try {
 }
 
 // 参数
-var appKey = config.appKey || ''; //翻译api 应用key    
-var secretKey = config.secretKey || ''; //翻译api 密钥
+var appKey = config.appKey || '';                   //翻译api 应用key    
+var secretKey = config.secretKey || '';             //翻译api 密钥
 var translateModel = config.translateModel || 1;    // 翻译模式： 1-i18n, 2-海豚有海的格式
-var channel = config.channel || 'google';   // 翻译渠道： youdao 有道, google 谷歌
-var languageList = config.languageList || [            // 翻译语言
+var channel = config.channel || 'google';           // 翻译渠道： youdao 有道, google 谷歌
+var languageList = config.languageList || [         // 翻译语言
     "CN",
     "EN",
     "TC"
 ];
-var filePath = config.filePath ? (config.filePath == './' ? INIT_CWD : (INIT_CWD + config.filePath)) : INIT_CWD;          // 需要翻译的目录
+var filePath = config.filePath ? (config.filePath == './' ? INIT_CWD : (INIT_CWD + config.filePath)) : INIT_CWD;    // 需要翻译的目录
 var targetPath = config.targetPath ? (config.targetPath == './' ? INIT_CWD : (INIT_CWD + config.targetPath)) : '';  // 目标地址
 var excludes = config.excludes || [                   // 排除翻译的目录
     'node_modules',
@@ -58,31 +58,47 @@ if(channel == 'youdao'){
         return false;
     }
 }
-if(!targetPath){
-    console.error('\033[41;31m请配置targetPath\033[0m');
-    return false;
-}
 if(!languageList[0]){
     console.error('\033[41;31m请配置languageList\033[0m');
     return false;
 }
 
-var stat = '';
-try {
-    stat = fs.statSync(targetPath); 
-} catch (error) {}
-if(!stat){
-    console.error('\033[41;31m targetPath 错误，找不到 \033[0m');
-    return false;
+// 判断 targetPath
+if(!targetPath){
+    readFileList(filePath,[],false).forEach(file=>{ 
+        if(!targetPath && translateModel == 1 && file.indexOf('/i18n') !== -1 ){
+            var files = file.split('/');
+            targetPath = file.replace('/'+ files[ files.length - 1 ], '') 
+        }
+        if(!targetPath && translateModel == 2 && file.indexOf('language.js') !== -1){
+            targetPath = file;
+        }
+    });
+    // 
+    if(!targetPath){
+        console.error('\033[41;31m请配置targetPath\033[0m');
+        return false;
+    }
+}else{
+    var stat = '';
+    try {
+        stat = fs.statSync(targetPath); 
+    } catch (error) {}
+    if(!stat){
+        console.error('\033[41;31m targetPath 错误，找不到 \033[0m');
+        return false;
+    }
+    if(translateModel == 2 && stat.isDirectory() ){
+        console.error('\033[41;31m targetPath 错误，必须是文件 \033[0m');
+        return false;
+    }
+    if(translateModel == 1 && !stat.isDirectory() ){
+        console.error('\033[41;31m targetPath 错误，必须是目录 \033[0m');
+        return false;
+    }
 }
-if(translateModel == 2 && stat.isDirectory() ){
-    console.error('\033[41;31m targetPath 错误，必须是文件 \033[0m');
-    return false;
-}
-if(translateModel == 1 && !stat.isDirectory() ){
-    console.error('\033[41;31m targetPath 错误，必须是目录 \033[0m');
-    return false;
-}
+
+// 获取中文文件
 var chinese = '';
 if(translateModel == 1){
     if(languageList.indexOf('CN') !== -1  || languageList.indexOf('cn') !== -1){
@@ -140,8 +156,6 @@ try {
 } catch (e) {
     log('');
 }
-
-
 
 
 /**
@@ -209,7 +223,6 @@ function getTranslateText(filePath,texts=[]){
             if(!match7) match7 = [];
             // 
             translateTexts = translateTexts.concat( match1.concat( match2.concat(  match3.concat( match4.concat( match5.concat( match6.concat( match7 ) ) ) ) ) ) )
-            translateTexts = [...new Set(translateTexts)];
         });
     }
     // 
@@ -232,6 +245,8 @@ function getTranslateText(filePath,texts=[]){
         return false;
     })
     // 
+    translateTexts = [...new Set(translateTexts)];
+    // 
     return translateTexts;
 }
 
@@ -239,23 +254,31 @@ function getTranslateText(filePath,texts=[]){
  * 文件遍历方法
  * @param dir 需要遍历的文件路径
  */  
-function readFileList(dir, filesList = []) {
+function readFileList(dir, filesList = [],$is=true) {
     const files = fs.readdirSync(dir);
     files.forEach((item, index) => {
         var fullPath = path.join(dir, item);
         const stat = fs.statSync(fullPath);
+        // 排除目录 - 
+        if( dir.indexOf('node_modules') !=-1 || dir.indexOf('storage') !=-1 || dir.indexOf('vendor') !=-1){
+            return;  
+        }
         // 排除目录
-        var isExclude = false;
-        excludes.forEach(function(name){  if( dir.indexOf(name) !=-1 ){  isExclude = true;  } })
-        if(isExclude)  return;      
+        if($is){
+            var isExclude = false;
+            excludes.forEach(function(name){  if( dir.indexOf(name) !=-1 ){  isExclude = true;  } })
+            if(isExclude)  return;  
+        }
         // 
         if (stat.isDirectory()) {      
-            readFileList(path.join(dir, item), filesList);  //递归读取文件
-        } else {           
-            //  允许文件
-            var isFileSuffix = false;
-            fileSuffix.forEach(function(name){ if( fullPath.indexOf(name) !==-1 ){ isFileSuffix = true; }   })
-            if(!isFileSuffix)  return;
+            readFileList(path.join(dir, item), filesList, $is);  //递归读取文件
+        } else {     
+            if($is){
+                //  允许文件
+                var isFileSuffix = false;
+                fileSuffix.forEach(function(name){ if( fullPath.indexOf(name) !==-1 ){ isFileSuffix = true; }   })
+                if(!isFileSuffix)  return;
+            }
             // 
             filesList.push(fullPath);                     
         }        
