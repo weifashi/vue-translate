@@ -1,6 +1,52 @@
 # vue-translate
 
 #### 介绍
+##### 全自动化翻译插件，自动检测项目所有中文字体执行翻译，可指定翻译语言（多选），可指定翻译目录，输出目录  
+
+##### &nbsp;
+
+##### 下载
+```
+npm install vue-auto-translation
+```
+
+##### 配置文件 安装完成后会在根目录生成配置文件 translate.json
+```
+{
+    "translateModel": 1,
+    "filePath": "./",
+    "targetPath": "",           //指定翻译成功后输出的目录，示列：src/
+    "languageList": [           //指定需要翻译的语言列表
+        "CN",
+        "EN",
+        "TC"
+    ],
+    "channel": "google",
+    "appKey": "",
+    "secretKey": "",
+    "excludes": [
+        "node_modules",
+        "vendor",
+        "build",
+        "dist",
+        ".git",
+        ".vscode",
+        "storage",
+        "public",
+        "language",
+        "database",
+        "lang"
+    ],
+    "fileSuffix": [
+        ".vue",
+        ".html",
+        ".js",
+        ".ts",
+        ".php"
+    ]
+}
+```
+
 {**以下是 Gitee 平台说明，您可以替换此简介**
 Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
 无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
