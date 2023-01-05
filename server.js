@@ -322,19 +322,20 @@ function youDaoTranslate(query,to='en'){
             return jsonObj.translation[0];
         }else{
             log('');
-            console.error('\033[41;31m有道翻译错误，请求失败：密钥错误\033[0m'); error;
+            console.error('\033[41;31m有道翻译错误，请求失败：密钥错误\033[0m'); 
+            process.exit()
             return '';
         }
     }else{
         log('');
-        console.error('\033[41;31m有道翻译错误，请求失败：\033[0m',res); error;
+        console.error('\033[41;31m有道翻译错误，请求失败：\033[0m',res);
+        process.exit()
         return '';
     }
 }
 
 // 谷歌翻译
 function googleTranslate(text,tl='en'){
-    if(tl.toLowerCase() == 'zh') return text;
     var urlParams = {
         'client'   : 'gtx',
         'hl'       : 'zh',      //
@@ -355,6 +356,7 @@ function googleTranslate(text,tl='en'){
     };
     var queryString = new URLSearchParams(Object.entries(urlParams)).toString();
     var res = request('GET','https://translate.google.com/translate_a/single?'+queryString)
+    if(tl.toLowerCase() == 'zh') return text;
     if (res && res.statusCode == 200) {
         var body = res.getBody();
         var jsonObj = JSON.parse(body); // 解析接口返回的JSON内容
@@ -362,18 +364,32 @@ function googleTranslate(text,tl='en'){
             return jsonObj[0][0][0];
         }else{
             log('');
-            console.error('\033[41;31m谷歌翻译错误，请求失败:\033[0m',jsonObj); error;
+            console.error('\033[41;31m谷歌翻译错误，请求失败:\033[0m',jsonObj);
+            process.exit()
             return '';
         }
     }else{
         log('');
-        console.error('\033[41;31m谷歌翻译错误，请求失败: 请留意国内网络是否可以正常访问google \033[0m'); error;
+        console.error('\033[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google \033[0m');
+        process.exit()
         return '';
     }
 }
 
 // 翻译
+function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
 function translate(text,languageList,channel){
+    var index = 0;
+    if(languageList.length > 0 && channel === 'google'){
+        sleep(10000).then(() => {
+            if(index==0){
+                console.log('\033[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google \033[0m');
+                process.exit()
+            }
+        })
+    }
     var texts = languageList.map(lang => {
         var slang = lang;
         if(lang=='TC' || lang=='tc' || lang=='Tc' || lang=='tC'){
@@ -382,9 +398,13 @@ function translate(text,languageList,channel){
         if(lang=='cn' || lang=='Cn' || lang=='CN' || lang=='cN'){
             slang = 'ZH'
         }
+        var value = channel == 'youdao' ? youDaoTranslate(text,slang) :  googleTranslate(text,slang);
+        if(value){
+            index = index + 1;
+        }
         return {
             key : lang,
-            value : channel == 'youdao' ? youDaoTranslate(text,slang) :  googleTranslate(text,slang)
+            value : value
         };
     });
     // 处理格式
@@ -396,5 +416,5 @@ function translate(text,languageList,channel){
     }
     return result;
 }
-
+  
 

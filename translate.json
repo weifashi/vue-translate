@@ -21,7 +21,8 @@
         "public",
         "language",
         "database",
-        "lang"
+        "lang",
+        "i18n"
     ],
     "fileSuffix": [
         ".vue",
