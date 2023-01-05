@@ -33,7 +33,9 @@ npm install vue-auto-translate
         "public",
         "language",
         "database",
-        "lang"
+        "lang",
+        "i18n",
+        ".svn"
     ],
     "fileSuffix": [        // 指定只翻译哪些后缀文件
         ".vue",
