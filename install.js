@@ -7,7 +7,7 @@ fs.readFile(packagePath,function(err, data) {
     if(err) throw err;
     var json = JSON.parse(data)
     json.scripts.translate = 'node node_modules/vue-translate/server.js';
-    fs.writeFile(packagePath, JSON.stringify(json, null, 2), "utf8" ,function(err,result) {
+    fs.writeFile(packagePath, JSON.stringify(json, null, 4), "utf8" ,function(err,result) {
 
     });
 });
