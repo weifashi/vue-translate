@@ -6,7 +6,7 @@ var packagePath = INIT_CWD+'/package.json';
 fs.readFile(packagePath,function(err, data) {
     if(err) throw err;
     var json = JSON.parse(data)
-    json.scripts.translate = 'node node_modules/vue-translate/server.js';
+    json.scripts.translate = 'node node_modules/vue-auto-translate/server.js';
     fs.writeFile(packagePath, JSON.stringify(json, null, 4), "utf8" ,function(err,result) {
 
     });
