@@ -222,7 +222,17 @@ function getTranslateText(filePath,texts=[]){
             var match7 = contents.match(/\('([\u4e00-\u9fa5]+(\S*))'\)/g)
             if(!match7) match7 = [];
             // 
+            var match8 = contents.match(/\("([\u4e00-\u9fa5]+(\S*))"\)/g)
+            if(!match8) match8 = [];
+            // 
+            var match9 = contents.match(/\('([1-9]+(\.|，|,|-|、|：|:|\/)+[\u4e00-\u9fa5]+(\S*))'\)/g)
+            if(!match9) match9 = [];
+            // // 
+            var match10 = contents.match(/\("([1-9]+(\.|，|,|-|、|：|:|\/)+[\u4e00-\u9fa5]+(\S*))"\)/g)
+            if(!match10) match10 = [];
+            // 
             translateTexts = translateTexts.concat( match1.concat( match2.concat(  match3.concat( match4.concat( match5.concat( match6.concat( match7 ) ) ) ) ) ) )
+            translateTexts = translateTexts.concat( match8.concat( match9.concat( match10 ) ))
         });
     }
     // 
@@ -236,7 +246,7 @@ function getTranslateText(filePath,texts=[]){
         }
     }
     translateTexts = translateTexts.map(h=>{ 
-        return h.replace("('", '').replace("')", '').replace(/^'/, '').replace(/^"/, '')
+        return h.replace("('", '').replace("')", '').replace('("', '').replace('")', '').replace(/^'/, '').replace(/^"/, '')
     })
     translateTexts = translateTexts.filter(h=>{
         if( langs.indexOf(h) == -1 && h.indexOf('}') == -1 && h.indexOf('<') == -1 && h.indexOf('}}') == -1 && h.indexOf("')") == -1 ){
