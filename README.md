@@ -3,7 +3,7 @@
 ##### 介绍
 ##### 全自动化翻译插件，自动检测项目所有中文字体执行翻译，可指定翻译语言（多选），可指定翻译目录与输出目录 ，可选择谷歌或有道翻译
 
-##### 1.下载
+##### 1.安装
 ```
 npm install vue-auto-translate
 ```
@@ -12,6 +12,7 @@ npm install vue-auto-translate
 ```
 {
     "translateModel": 1,    // 翻译模式：1 (i18n)，2 (海豚格式)
+    "strict": false,        // 是否严格模式，默认为false提取全局中文，为true时将只提取 $t(''). $L('') 内的中文
     "filePath": "./",       // 指定需要查询翻译的目录
     "targetPath": "",       // 指定翻译成功后输出的目录,为空时将自动查询，示列："/src/i18n" ，'/resources/assets/js/language/language.js‘
     "languageList": [       // 指定需要翻译的语言列表

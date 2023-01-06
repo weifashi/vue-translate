@@ -2,6 +2,7 @@ const fs = require("fs")
 const path = require('path'); 
 const request = require('sync-request');
 const crypto = require('crypto');
+// const pinyin = require('pinyin-pro');
 const log = require('single-line-log').stderr;
 const arguments = process.argv; 
 const INIT_CWD = process.env.INIT_CWD;
@@ -19,6 +20,8 @@ var appKey = config.appKey || '';                   //翻译api 应用key
 var secretKey = config.secretKey || '';             //翻译api 密钥
 var translateModel = config.translateModel || 1;    // 翻译模式： 1-i18n, 2-海豚有海的格式
 var channel = config.channel || 'google';           // 翻译渠道： youdao 有道, google 谷歌
+var strict = config.strict || false;                // 是否严格模式，默认为false提取全局中文，为true时将只提取 $t(''). $L('') 内的中文
+// var changeKey = config.changeKey || false;          // 是否更换key，默认为false以中文作为key，为true时将以拼音代替并替换选中文本,strict等于true与translateModel=1时生效
 var languageList = config.languageList || [         // 翻译语言
     "CN",
     "EN",
@@ -141,6 +144,9 @@ try {
                     key = h.value;
                 }
             })
+            // if(changeKey && strict){
+            //     key = pinyin.pinyin(key,{toneType:'none',nonZh:'consecutive'}).replace(/ /g,'-')
+            // }
             resultText.forEach(h=>{ 
                 var contents = {};
                 var path = targetPath+"/"+(h.key).toLowerCase() + '.json';
@@ -201,38 +207,42 @@ function getTranslateText(filePath,texts=[]){
         readFileList(filePath).forEach(function (item, index) {
             var contents = fs.readFileSync(item)+'';
             // 
-            var match1 = contents.match(/('|")([\u4e00-\u9fa5]+[\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
-            if(!match1)  match1 = [];
-            // 
-            var match2 = contents.match(/('|")([\u4e00-\u9fa5]+(，|,|-|、|：|:|\/|\||[0-9])+[\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
-            if(!match2)  match2 = [];
-            // 
-            var match3 = contents.match(/('|")([\u4e00-\u9fa5]+(，|,|-|、|：|:|\/|[0-9])+[\u4e00-\u9fa5]+(，|,|-|、|：|:|\/|[0-9])+[\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
-            if(!match3)  match3 = [];
-            // 
-            var match4 = contents.match(/('|")([\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
-            if(!match4)  match4 = [];
-            // 
-            var match5 = contents.match(/(?<=')(\w)*([\u4e00-\u9fa5]+)(\.|，|,|-|、|：|:|\/|[0-9])*(?=')/g)
-            if(!match5) match5 = [];
-            // 
-            var match6 = contents.match(/(?<=")(\w)*([\u4e00-\u9fa5]+)(\.|，|,|-|、|：|:|\/|[0-9])*(?=")/g)
-            if(!match6) match6 = [];
-            // 
-            var match7 = contents.match(/\('([\u4e00-\u9fa5]+(\S*))'\)/g)
-            if(!match7) match7 = [];
-            // 
-            var match8 = contents.match(/\("([\u4e00-\u9fa5]+(\S*))"\)/g)
-            if(!match8) match8 = [];
-            // 
-            var match9 = contents.match(/\('([1-9]+(\.|，|,|-|、|：|:|\/)+[\u4e00-\u9fa5]+(\S*))'\)/g)
-            if(!match9) match9 = [];
-            // // 
-            var match10 = contents.match(/\("([1-9]+(\.|，|,|-|、|：|:|\/)+[\u4e00-\u9fa5]+(\S*))"\)/g)
-            if(!match10) match10 = [];
-            // 
-            translateTexts = translateTexts.concat( match1.concat( match2.concat(  match3.concat( match4.concat( match5.concat( match6.concat( match7 ) ) ) ) ) ) )
-            translateTexts = translateTexts.concat( match8.concat( match9.concat( match10 ) ))
+            if(!strict){
+                var match1 = contents.match(/('|")([\u4e00-\u9fa5]+[\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
+                if(!match1)  match1 = [];
+                // 
+                var match2 = contents.match(/('|")([\u4e00-\u9fa5]+(，|,|-|、|：|:|\/|\||[0-9])+[\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
+                if(!match2)  match2 = [];
+                // 
+                var match3 = contents.match(/('|")([\u4e00-\u9fa5]+(，|,|-|、|：|:|\/|[0-9])+[\u4e00-\u9fa5]+(，|,|-|、|：|:|\/|[0-9])+[\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
+                if(!match3)  match3 = [];
+                // 
+                var match4 = contents.match(/('|")([\u4e00-\u9fa5]+(!|！|。|？|\...|\......))/g)
+                if(!match4)  match4 = [];
+                // 
+                var match5 = contents.match(/(?<=')(\w)*([\u4e00-\u9fa5]+)(\.|，|,|-|、|：|:|\/|[0-9])*(?=')/g)
+                if(!match5) match5 = [];
+                // 
+                var match6 = contents.match(/(?<=")(\w)*([\u4e00-\u9fa5]+)(\.|，|,|-|、|：|:|\/|[0-9])*(?=")/g)
+                if(!match6) match6 = [];
+                // 
+                var match7 = contents.match(/(\('|\(")[\u4e00-\u9fa5](\S*)('\)|"\))/g)
+                if(!match7) match7 = [];
+                // // 
+                var match8 = contents.match(/(\('|\(")[1-9](\.|，|,|-|、|：|:|\/)[\u4e00-\u9fa5](\S*)('\)|"\))/g)
+                if(!match8) match8 = [];
+                // 
+                translateTexts = translateTexts.concat( match1.concat( match2.concat(  match3.concat( match4.concat( match5.concat( match6 ) ) ) ) ) )
+                translateTexts = translateTexts.concat( match7.concat( match8 ) )
+            }else{
+                var match1 = contents.match(/(\$t\('|\$t\("|\$L\('|\$L\(")[\u4e00-\u9fa5](\S*)('\)|"\))/g)
+                if(!match1) match1 = [];
+                // 
+                var match2 = contents.match(/(\$t\('|\$t\("|\$L\('|\$L\(")[1-9](\.|，|,|-|、|：|:|\/)[\u4e00-\u9fa5](\S*)('\)|"\))/g)
+                if(!match2) match2 = [];
+                // 
+                translateTexts = translateTexts.concat( match1.concat( match2 ) )
+            }
         });
     }
     // 
@@ -242,15 +252,24 @@ function getTranslateText(filePath,texts=[]){
     }else{
         var language = getWebLanguage( targetPath + '/' + chinese );
         for (var x in language){
-            langs.push(x);
+            langs.push(language[x]);
         }
     }
-    translateTexts = translateTexts.map(h=>{ 
-        return h.replace("('", '').replace("')", '').replace('("', '').replace('")', '').replace(/^'/, '').replace(/^"/, '')
-    })
+    if(texts.length == 0){
+        translateTexts = translateTexts.map(h=>{ 
+            return h
+            .replace("$t('", '').replace('$t("', '')
+            .replace("$L('", '').replace('$L("', '')
+            .replace("('", '').replace("')", '')
+            .replace('("', '').replace('")', '')
+            .replace(/^'/, '').replace(/^"/, '')
+        })
+    }
     translateTexts = translateTexts.filter(h=>{
-        if( langs.indexOf(h) == -1 && h.indexOf('}') == -1 && h.indexOf('<') == -1 && h.indexOf('}}') == -1 && h.indexOf("')") == -1 ){
-            return true;
+        if( langs.indexOf(h) == -1){
+            if( texts.length > 0 || (h.indexOf('}') == -1 && h.indexOf('<') == -1 && h.indexOf('}}') == -1 && h.indexOf("')") == -1)){
+                return true;
+            }
         }
         return false;
     })
@@ -426,5 +445,3 @@ function translate(text,languageList,channel){
     }
     return result;
 }
-  
-

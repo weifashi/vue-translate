@@ -1,5 +1,6 @@
 {
     "translateModel": 1,
+    "strict": false,
     "filePath": "./",
     "targetPath": "",
     "languageList": [
