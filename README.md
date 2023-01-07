@@ -50,8 +50,8 @@ npm install vue-auto-translate
 
 ##### 3.执行翻译
 ```
-npm run translation              //自动提取配置目录下所有中文进行翻译
+npm run translate              //自动提取配置目录下所有中文进行翻译
 
-npm run translation  -- '你好'    //只翻译单个输入文本
+npm run translate  -- '你好'    //只翻译单个输入文本
 ```
 

@@ -50,8 +50,8 @@ npm install vue-auto-translate
 
 ##### 3.执行翻译
 ```
-npm run translation              //All Chinese characters in the configuration directory are automatically extracted for translation
+npm run translate              //All Chinese characters in the configuration directory are automatically extracted for translate
 
-npm run translation  -- '你好'    //Only a single input text is translated
+npm run translate  -- '你好'    //Only a single input text is translated
 ```
 
