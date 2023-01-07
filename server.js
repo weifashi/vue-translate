@@ -267,7 +267,7 @@ function getTranslateText(filePath,texts=[]){
     }
     translateTexts = translateTexts.filter(h=>{
         if( langs.indexOf(h) == -1){
-            if( texts.length > 0 || (h.indexOf('}') == -1 && h.indexOf('<') == -1 && h.indexOf('}}') == -1 && h.indexOf("')") == -1)){
+            if( texts.length > 0 || (h.indexOf('}') == -1 && h.indexOf('<') == -1 && h.indexOf('}}') == -1 && h.indexOf("')") == -1 && h.indexOf('")') == -1)){
                 return true;
             }
         }
