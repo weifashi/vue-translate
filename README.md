@@ -15,12 +15,12 @@ npm install vue-auto-translate
     "strict": false,        // 是否严格模式，默认为false提取全局中文，为true时将只提取 $t(''). $L('') 内的中文
     "filePath": "./",       // 指定需要查询翻译的目录
     "targetPath": "",       // 指定翻译成功后输出的目录,为空时将自动查询，示列："/src/i18n" ，'/resources/assets/js/language/language.js‘
-    "languageList": [       // 指定需要翻译的语言列表
+    "languageList": [       // 指定需要翻译的语言列表 ： CN,EN,TC,JA,KO .... 详见各翻译渠道的api文档
         "CN",
         "EN",
         "TC"
     ],
-    "channel": "google",    // 翻译渠道： youdao 有道, google 谷歌
+    "channel": "baidu",     // 翻译渠道：baidu 百度, youdao 有道, google 谷歌
     "appKey": "",           // 翻译渠道的应用key，google不需要
     "secretKey": "",        // 翻译渠道的应用密钥，google不需要
     "excludes": [           // 排除不需要翻译的目录

@@ -19,9 +19,9 @@ try {
 var appKey = config.appKey || '';                   //翻译api 应用key    
 var secretKey = config.secretKey || '';             //翻译api 密钥
 var translateModel = config.translateModel || 1;    // 翻译模式： 1-i18n, 2-海豚有海的格式
-var channel = config.channel || 'google';           // 翻译渠道： youdao 有道, google 谷歌
+var channel = config.channel || 'google';           // 翻译渠道： baidu 百度, youdao 有道, google 谷歌
 var strict = config.strict || false;                // 是否严格模式，默认为false提取全局中文，为true时将只提取 $t(''). $L('') 内的中文
-// var changeKey = config.changeKey || false;          // 是否更换key，默认为false以中文作为key，为true时将以拼音代替并替换选中文本,strict等于true与translateModel=1时生效
+// var changeKey = config.changeKey || false;      // 是否更换key，默认为false以中文作为key，为true时将以拼音代替并替换选中文本,strict等于true与translateModel=1时生效
 var languageList = config.languageList || [         // 翻译语言
     "CN",
     "EN",
@@ -315,11 +315,53 @@ function readFileList(dir, filesList = [],$is=true) {
     return filesList;
 }
 
+// 百度翻译
+function baiduTranslate(query,to='en'){
+    to = to.toLowerCase();
+    if(to == 'zh') return query;
+    if(to == 'zh-tw') to = 'cht';
+    if(to == 'km') to = 'tr';   //土耳其
+    if(to == 'th') to = 'th';   //泰语
+    if(to == 'ko') to = 'kor';  //韩语
+    if(to == 'ja') to = 'jp';   //日语
+    function truncate(q){
+        var len = q.length;
+        if(len<=20) return q;
+        return q.substring(0, 10) + len + q.substring(len-10, len);
+    }
+    var salt = (new Date).getTime();
+    var str1 = appKey + truncate(query) + salt + secretKey;
+    var sign = crypto.createHash('md5').update(str1).digest('hex');
+    var urlParams = {
+        q: query,
+        appid: appKey,
+        salt: salt,
+        from: 'zh',
+        to: to,
+        sign: sign
+    };
+    var queryString = new URLSearchParams(Object.entries(urlParams)).toString();
+    var res = request('GET','https://fanyi-api.baidu.com/api/trans/vip/translate?'+queryString)
+    if (res && res.statusCode == 200) {
+        var body = res.getBody();
+        var jsonObj = JSON.parse(body); // 解析接口返回的JSON内容
+        if (!jsonObj.error_code && jsonObj.trans_result && jsonObj.trans_result[0]  ){
+            return jsonObj.trans_result[0]['dst'];
+        }else{
+            log('');
+            console.error('\033[41;31m百度翻译错误，请求失败：\033[0m',jsonObj); 
+            process.exit()
+        }
+    }else{
+        log('');
+        console.error('\033[41;31m百度翻译错误，请求失败：\033[0m',res);
+        process.exit()
+    }
+}
 
 // 有道翻译
 function youDaoTranslate(query,to='en'){
     to = to.toLowerCase();
-    if(to == 'ZH') to = 'zh-CHS';
     if(to == 'zh') return query;
     if(to == 'zh-tw') to = 'zh-CHT';
     function truncate(q){
@@ -329,14 +371,13 @@ function youDaoTranslate(query,to='en'){
     }
     var salt = (new Date).getTime();
     var curtime = Math.round(new Date().getTime()/1000);
-    var from = 'zh';
     var str1 = appKey + truncate(query) + salt + curtime + secretKey;
     var sign = crypto.createHash('sha256').update(str1).digest('hex');
     var urlParams = {
         q: query,
         appKey: appKey,
         salt: salt,
-        from: from,
+        from: 'zh',
         to: to,
         sign: sign,
         signType: "v3",
@@ -353,13 +394,11 @@ function youDaoTranslate(query,to='en'){
             log('');
             console.error('\033[41;31m有道翻译错误，请求失败：密钥错误\033[0m'); 
             process.exit()
-            return '';
         }
     }else{
         log('');
         console.error('\033[41;31m有道翻译错误，请求失败：\033[0m',res);
         process.exit()
-        return '';
     }
 }
 
@@ -385,6 +424,7 @@ function googleTranslate(text,tl='en'){
     };
     var queryString = new URLSearchParams(Object.entries(urlParams)).toString();
     var res = request('GET','https://translate.google.com/translate_a/single?'+queryString)
+    console.log(res)
     if(tl.toLowerCase() == 'zh') return text;
     if (res && res.statusCode == 200) {
         var body = res.getBody();
@@ -395,13 +435,11 @@ function googleTranslate(text,tl='en'){
             log('');
             console.error('\033[41;31m谷歌翻译错误，请求失败:\033[0m',jsonObj);
             process.exit()
-            return '';
         }
     }else{
         log('');
         console.error('\033[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google \033[0m');
         process.exit()
-        return '';
     }
 }
 
@@ -427,7 +465,7 @@ function translate(text,languageList,channel){
         if(lang=='cn' || lang=='Cn' || lang=='CN' || lang=='cN'){
             slang = 'ZH'
         }
-        var value = channel == 'youdao' ? youDaoTranslate(text,slang) :  googleTranslate(text,slang);
+        var value = channel == 'youdao' ? youDaoTranslate(text,slang) : (channel == 'baidu' ? baiduTranslate(text,slang) : googleTranslate(text,slang));
         if(value){
             index = index + 1;
         }
