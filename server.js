@@ -424,7 +424,6 @@ function googleTranslate(text,tl='en'){
     };
     var queryString = new URLSearchParams(Object.entries(urlParams)).toString();
     var res = request('GET','https://translate.google.com/translate_a/single?'+queryString)
-    console.log(res)
     if(tl.toLowerCase() == 'zh') return text;
     if (res && res.statusCode == 200) {
         var body = res.getBody();
