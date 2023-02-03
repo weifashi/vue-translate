@@ -185,6 +185,7 @@ function getWebLanguage(targetPath)
         contents = contents.replace(/,      /g, ",");
         contents = contents.replace(/,       /g, ",");
         contents = contents.replace(/\\ n/g, "");
+        contents = contents.replace(/\\ N/g, "");
         contents = contents.replace(/,\n\n\n]/g, "]");
         contents = contents.replace(/,\n\n]/g, "]");
         contents = contents.replace(/,\n]/g, "]");
