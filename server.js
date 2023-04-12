@@ -2,7 +2,6 @@ const fs = require("fs")
 const path = require('path'); 
 const request = require('sync-request');
 const crypto = require('crypto');
-// const pinyin = require('pinyin-pro');
 const log = require('single-line-log').stderr;
 const arguments = process.argv; 
 const INIT_CWD = process.env.INIT_CWD;
@@ -73,7 +72,7 @@ if(!targetPath){
             var files = file.split('/');
             targetPath = file.replace('/'+ files[ files.length - 1 ], '') 
         }
-        if(!targetPath && translateModel == 2 && file.indexOf('language.js') !== -1){
+        if(!targetPath && (translateModel == 2 || translateModel == 3) && file.indexOf('language.js') !== -1){
             targetPath = file;
         }
     });
@@ -91,7 +90,7 @@ if(!targetPath){
         console.error('\033[41;31m targetPath 错误，找不到 \033[0m');
         return false;
     }
-    if(translateModel == 2 && stat.isDirectory() ){
+    if((translateModel == 2 || translateModel == 3) && stat.isDirectory() ){
         console.error('\033[41;31m targetPath 错误，必须是文件 \033[0m');
         return false;
     }
@@ -128,15 +127,7 @@ try {
     });
     log(`=----------100%---------${length}/${length}  翻译完成`);
     console.log('');
-    if(translateModel=='2'){
-        resultTexts = getWebLanguage(targetPath).concat(resultTexts);
-        resultTexts = JSON.stringify(resultTexts);
-        resultTexts = resultTexts.replace("[{", "[\n   {");
-        resultTexts = resultTexts.replace(/},{/g, "},\n   {");
-        resultTexts =  resultTexts.replace("}]", "}\n]");
-        resultTexts = ((fs.readFileSync(targetPath)+'').indexOf('exports.default=') == -1 ? "export default " : "exports.default=") + resultTexts;
-        fs.writeFile(targetPath,resultTexts,function(err,result) {});
-    }else{
+    if(translateModel==1){
         resultTexts.forEach(resultText=>{ 
             var key  = '';
             resultText.forEach(h=>{ 
@@ -158,6 +149,36 @@ try {
                 fs.writeFileSync(path, JSON.stringify(contents,null,4));
             })
         })
+    }else{
+        resultTexts = getWebLanguage(targetPath).concat(resultTexts);
+        resultTexts = JSON.stringify(resultTexts);
+        resultTexts = resultTexts.replace("[{", "[\n   {");
+        resultTexts = resultTexts.replace(/},{/g, "},\n   {");
+        resultTexts = resultTextsS = resultTexts.replace("}]", "}\n]");
+        resultTexts = ((fs.readFileSync(targetPath)+'').indexOf('exports.default=') == -1 ? "export default " : "exports.default=") + resultTexts;
+        fs.writeFile(targetPath,resultTexts,function(err,result) {});
+        if( translateModel == 3 ){
+            const languageArr = JSON.parse(resultTextsS)
+            const LANGUAGE_DATA = {}
+            // 循环组合数据
+            languageArr.map((item, index) => {
+                if (!LANGUAGE_DATA['key']) LANGUAGE_DATA['key'] = {}
+                LANGUAGE_DATA['key'][item.CN] = index
+                for (const key in item) {
+                    if (Object.hasOwnProperty.call(item, key)) {
+                        if (!LANGUAGE_DATA[key]) LANGUAGE_DATA[key] = []
+                        LANGUAGE_DATA[key].push(key != 'CN' ? item[key] : '')
+                    }
+                }
+            })
+            // 写入文件
+            for (const key in LANGUAGE_DATA) {
+                if (Object.hasOwnProperty.call(LANGUAGE_DATA, key)) {
+                    const data = LANGUAGE_DATA[key]
+                    mkdirFile(key, data)
+                }
+            }
+        }
     }
 } catch (e) {
     log('');
@@ -185,7 +206,6 @@ function getWebLanguage(targetPath)
         contents = contents.replace(/,      /g, ",");
         contents = contents.replace(/,       /g, ",");
         contents = contents.replace(/\\ n/g, "");
-        contents = contents.replace(/\\ N/g, "");
         contents = contents.replace(/,\n\n\n]/g, "]");
         contents = contents.replace(/,\n\n]/g, "]");
         contents = contents.replace(/,\n]/g, "]");
@@ -248,7 +268,7 @@ function getTranslateText(filePath,texts=[]){
     }
     // 
     var langs = [];
-    if(translateModel == 2){
+    if(translateModel == 2 || translateModel == 3){
         langs = getWebLanguage(targetPath).map(h=>{ return (h.CN || h.cn || h.zh || h.ZH)  });
     }else{
         var language = getWebLanguage( targetPath + '/' + chinese );
@@ -476,10 +496,26 @@ function translate(text,languageList,channel){
     });
     // 处理格式
     var result = {};
-    if(translateModel=='2'){
-        texts.forEach(o => { result[o.key]  = o.value; });
-    }else{
+    if(translateModel=='1'){
         result = texts
+    }else{
+        texts.forEach(o => { result[o.key]  = o.value; });
     }
     return result;
+}
+
+// 创建文件
+function mkdirFile(lang, data) {
+    lang = lang.toLowerCase()
+    const basePath = targetPath.replace("/"+ targetPath.split("/")[targetPath.split("/").length-1] ,"")
+    fs.mkdir(`${basePath}/locales`,function(err){
+        fs.writeFile(`${basePath}/locales/${lang}.js`,`if(typeof window.LANGUAGE_DATA==="undefined")window.LANGUAGE_DATA={};window.LANGUAGE_DATA["${lang}"]=` + JSON.stringify(data), (err) => {
+            if (err) {
+                console.log('写入文件失败！')
+            } else {
+                console.log('写入文件成功！' + `${basePath}/locales/${lang}.js`)
+            }
+        })
+    })
+    
 }
