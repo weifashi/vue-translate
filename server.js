@@ -261,7 +261,7 @@ function getTranslateText(filePath,texts=[]){
                 var match = contents.match(/(\$t\(|\$L\()(['"])(.*?)\2\)/g)
                 if(match){
                     (match || []).forEach(str=>{
-                        if(/[\u4e00-\u9fa5]/.test(str) && (str.match(/\+/g) || []).length < 2 && str.indexOf('$L') == -1 && str.indexOf('$t') == -1){
+                        if(/[\u4e00-\u9fa5]/.test(str) && (str.match(/\+/g) || []).length < 2 && str.indexOf('this.$L') == -1 && str.indexOf('this.$t') == -1){
                             array.push(str);
                         }
                     })
