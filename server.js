@@ -52,16 +52,16 @@ var fileSuffix = config.fileSuffix || [              // 指定翻译的文件后
 // 判断
 if(channel == 'youdao'){
     if(!appKey){
-        console.error('\033[41;31m请配置appKey\033[0m');
+        console.error('[41;31m请配置appKey[0m');
         return false;
     }
     if(!secretKey){
-        console.error('\033[41;31m请配置secretKey\033[0m');
+        console.error('[41;31m请配置secretKey[0m');
         return false;
     }
 }
 if(!languageList[0]){
-    console.error('\033[41;31m请配置languageList\033[0m');
+    console.error('[41;31m请配置languageList[0m');
     return false;
 }
 
@@ -78,7 +78,7 @@ if(!targetPath){
     });
     // 
     if(!targetPath){
-        console.error('\033[41;31m请配置targetPath\033[0m');
+        console.error('[41;31m请配置targetPath[0m');
         return false;
     }
 }else{
@@ -87,15 +87,15 @@ if(!targetPath){
         stat = fs.statSync(targetPath); 
     } catch (error) {}
     if(!stat){
-        console.error('\033[41;31m targetPath 错误，找不到 \033[0m');
+        console.error('[41;31m targetPath 错误，找不到 [0m');
         return false;
     }
     if((translateModel == 2 || translateModel == 3) && stat.isDirectory() ){
-        console.error('\033[41;31m targetPath 错误，必须是文件 \033[0m');
+        console.error('[41;31m targetPath 错误，必须是文件 [0m');
         return false;
     }
     if(translateModel == 1 && !stat.isDirectory() ){
-        console.error('\033[41;31m targetPath 错误，必须是目录 \033[0m');
+        console.error('[41;31m targetPath 错误，必须是目录 [0m');
         return false;
     }
 }
@@ -365,12 +365,12 @@ function baiduTranslate(query,to='en'){
             return jsonObj.trans_result[0]['dst'];
         }else{
             log('');
-            console.error('\033[41;31m百度翻译错误，请求失败：\033[0m',jsonObj); 
+            console.error('[41;31m百度翻译错误，请求失败：[0m',jsonObj); 
             process.exit()
         }
     }else{
         log('');
-        console.error('\033[41;31m百度翻译错误，请求失败：\033[0m',res);
+        console.error('[41;31m百度翻译错误，请求失败：[0m',res);
         process.exit()
     }
 }
@@ -408,12 +408,12 @@ function youDaoTranslate(query,to='en'){
             return jsonObj.translation[0];
         }else{
             log('');
-            console.error('\033[41;31m有道翻译错误，请求失败：密钥错误\033[0m'); 
+            console.error('[41;31m有道翻译错误，请求失败：密钥错误[0m'); 
             process.exit()
         }
     }else{
         log('');
-        console.error('\033[41;31m有道翻译错误，请求失败：\033[0m',res);
+        console.error('[41;31m有道翻译错误，请求失败：[0m',res);
         process.exit()
     }
 }
@@ -448,12 +448,12 @@ function googleTranslate(text,tl='en'){
             return jsonObj[0][0][0];
         }else{
             log('');
-            console.error('\033[41;31m谷歌翻译错误，请求失败:\033[0m',jsonObj);
+            console.error('[41;31m谷歌翻译错误，请求失败:[0m',jsonObj);
             process.exit()
         }
     }else{
         log('');
-        console.error('\033[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google \033[0m');
+        console.error('[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google [0m');
         process.exit()
     }
 }
@@ -467,7 +467,7 @@ function translate(text,languageList,channel){
     if(languageList.length > 0 && channel === 'google'){
         sleep(10000).then(() => {
             if(index==0){
-                console.log('\033[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google \033[0m');
+                console.log('[41;31m谷歌翻译错误，请求失败: 请留意网络是否可以正常访问google [0m');
                 process.exit()
             }
         })
