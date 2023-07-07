@@ -2,6 +2,7 @@ const fs = require("fs")
 const path = require('path'); 
 const request = require('sync-request');
 const crypto = require('crypto');
+const { forEach } = require("mathjs");
 const log = require('single-line-log').stderr;
 const arguments = process.argv; 
 const INIT_CWD = process.env.INIT_CWD;
@@ -256,8 +257,16 @@ function getTranslateText(filePath,texts=[]){
                 translateTexts = translateTexts.concat( match1.concat( match2.concat(  match3.concat( match4.concat( match5.concat( match6 ) ) ) ) ) )
                 translateTexts = translateTexts.concat( match7.concat( match8 ) )
             }else{
-                var match = contents.match(/(\$t\('|\$t\("|\$L\('|\$L\(")(\S*)[\u4e00-\u9fa5](\S*)('\)|"\))/g)
-                translateTexts = translateTexts.concat( match || []  )
+                var array = [];
+                var match = contents.match(/(\$t\(|\$L\()(['"])(.*?)\2\)/g)
+                if(match){
+                    (match || []).forEach(str=>{
+                        if(/[\u4e00-\u9fa5]/.test(str) && (str.match(/\+/g) || []).length < 2 && str.indexOf('$L') == -1 && str.indexOf('$t') == -1){
+                            array.push(str);
+                        }
+                    })
+                }
+                translateTexts = translateTexts.concat(array)
             }
         });
     }
