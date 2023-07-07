@@ -23,6 +23,8 @@
     "dependencies": {
         "crypto": "^1.0.1",
         "just-task": "^1.7.0",
+        "ls": "^0.2.1",
+        "nrm": "^1.2.6",
         "single-line-log": "^1.1.2",
         "sync-request": "^6.1.0"
     }
