@@ -256,13 +256,8 @@ function getTranslateText(filePath,texts=[]){
                 translateTexts = translateTexts.concat( match1.concat( match2.concat(  match3.concat( match4.concat( match5.concat( match6 ) ) ) ) ) )
                 translateTexts = translateTexts.concat( match7.concat( match8 ) )
             }else{
-                var match1 = contents.match(/(\$t\('|\$t\("|\$L\('|\$L\(")[\u4e00-\u9fa5](\S*)('\)|"\))/g)
-                if(!match1) match1 = [];
-                // 
-                var match2 = contents.match(/(\$t\('|\$t\("|\$L\('|\$L\(")[1-9](\.|，|,|-|、|：|:|\/)[\u4e00-\u9fa5](\S*)('\)|"\))/g)
-                if(!match2) match2 = [];
-                // 
-                translateTexts = translateTexts.concat( match1.concat( match2 ) )
+                var match = contents.match(/(\$t\('|\$t\("|\$L\('|\$L\(")(\S*)[\u4e00-\u9fa5](\S*)('\)|"\))/g)
+                translateTexts = translateTexts.concat( match || []  )
             }
         });
     }
