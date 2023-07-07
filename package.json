@@ -1,6 +1,6 @@
 {
     "name": "vue-auto-translate",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "description": "自动化翻译插件",
     "main": "lib/server.js",
     "scripts": {
@@ -21,7 +21,6 @@
     "author": "605403358@qq.com",
     "license": "ISC",
     "dependencies": {
-        "crypto": "^1.0.1",
         "just-task": "^1.7.0",
         "single-line-log": "^1.1.2",
         "sync-request": "^6.1.0"
