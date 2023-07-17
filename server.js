@@ -454,7 +454,9 @@ function googleTranslate(text,tl='en'){
         var body = res.getBody();
         var jsonObj = JSON.parse(body); // 解析接口返回的JSON内容
         if (jsonObj && jsonObj[0] && jsonObj[0][0] && jsonObj[0][0][0]) {
-            return jsonObj[0][ jsonObj[0].length - 1 ][0];
+            return jsonObj[0].map(h=>{ return h[0] }).filter((value, index, self) => {
+                return self.indexOf(value) === index;
+            }).join('');
         }else{
             log('');
             console.error('[41;31m谷歌翻译错误，请求失败:[0m',jsonObj);
