@@ -1,6 +1,6 @@
 {
     "name": "vue-auto-translate",
-    "version": "1.1.11",
+    "version": "1.1.12",
     "description": "自动翻译插件",
     "main": "lib/server.js",
     "scripts": {

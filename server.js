@@ -2,7 +2,6 @@ const fs = require("fs")
 const path = require('path'); 
 const request = require('sync-request');
 const crypto = require('crypto');
-const { forEach } = require("mathjs");
 const log = require('single-line-log').stderr;
 const arguments = process.argv; 
 const INIT_CWD = process.env.INIT_CWD;
